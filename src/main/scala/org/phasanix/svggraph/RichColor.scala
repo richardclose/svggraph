@@ -3,25 +3,27 @@ import java.awt.Color
 
 import scala.language.implicitConversions
 
-/** */
-class RichColor(r: Int, g: Int, b: Int, a: Int) extends Color(r, g, b, a) {
+/**
+ * Utility methods for handling Color.
+ */
+class RichColorOps(val value: Color) extends AnyVal {
 
   def setAlpha(alpha: Double): Color =
-    new Color(getRed, getGreen, getBlue, (255 * alpha).toInt)
+    new Color(value.getRed, value.getGreen, value.getBlue, (255 * alpha).toInt)
 
-  def opaque: Color = if (getAlpha == 255) this else setAlpha(1.0)
+  def opaque: Color = if (value.getAlpha == 255) value else setAlpha(1.0)
 
-  def asRgb: String = RichColor.colorAsRgb(this)
-  def asHex: String = RichColor.colorAsHex(this)
+  def asRgb: String = RichColor.colorAsRgb(value)
+  def asHex: String = RichColor.colorAsHex(value)
 }
 
 object RichColor extends X11Colors {
 
-  implicit def color2richcolor(color: Color): RichColor = apply(color)
+  implicit def color2richcolor(color: Color): RichColorOps = apply(color)
 
   val Transparent = new Color(0, 0, 0, 0)
 
-  def apply(color: Color): RichColor = new RichColor(color.getRed, color.getGreen, color.getBlue, color.getAlpha)
+  def apply(color: Color): RichColorOps = new RichColorOps(color)
 
   private val rxShortHex = """#([0-9A-F])([0-9A-F])([0-9A-F])""".r
   private val rxLongHex = """#([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})""".r
@@ -36,10 +38,13 @@ object RichColor extends X11Colors {
     import java.lang.Integer.{ parseInt => pi }
     import java.lang.Float.{ parseFloat => pf }
     val c = s match {
-      case rxShortHex(r, g, b) => new RichColor(pi(r + r, 16), pi(g + g, 16), pi(b + b, 16), 255)
-      case rxLongHex(r, g, b) => new RichColor(pi(r, 16), pi(g, 16), pi(b, 16), 255)
-      case rxRgb(r, g, b) => new RichColor(pi(r), pi(g), pi(b), 255)
-      case rxRgba(r, g, b, a) => new RichColor(pi(r), pi(g), pi(b), (255.0F * pf(a)).toInt)
+      case rxShortHex(r, g, b) => new Color(pi(r + r, 16), pi(g + g, 16), pi(b + b, 16), 255)
+      case rxLongHex(r, g, b) => new Color(pi(r, 16), pi(g, 16), pi(b, 16), 255)
+      case rxRgb(r, g, b) => new Color(pi(r), pi(g), pi(b), 255)
+      case rxRgba(r, g, b, a) =>
+        val alpha = pf(a)
+        val alphaInt = if (alpha == 0.0) 0 else (256f * alpha).toInt - 1
+        new Color(pi(r), pi(g), pi(b), alphaInt)
       case _ => null
     }
     Option(c)
@@ -62,8 +67,11 @@ object RichColor extends X11Colors {
       .append(color.getRed).append(',')
       .append(color.getGreen).append(',')
       .append(color.getBlue)
-    if (hasAlpha)
-      sb.append(',').append("%.2f".format(alpha / 255.0))
+    if (hasAlpha) {
+      val s = "%.6f".format((alpha+1)/256.0).reverse.dropWhile(_ == '0').reverse // Remove trailing zeros
+      sb.append(',').append(s)
+    }
+
     sb.append(')')
   }
 

@@ -1,5 +1,6 @@
 package org.phasanix.svggraph
 
+
 /**
  * Constants for charting
  */
@@ -26,6 +27,30 @@ trait Constants {
   object TopRight extends Corner
   object BottomLeft extends Corner
   object BottomRight extends Corner
+
+  /**
+   * Adds particular attributes to an element
+   */
+  class AttrProvider(val name: String,  val value: String) {
+    def apply(elt: xml.Elem): xml.Elem =
+      if (value == null)
+        elt
+      else
+        elt % new xml.UnprefixedAttribute(name, value, xml.Null)
+  }
+
+  /**
+   * Text anchor, for alignment
+   */
+  sealed class TextAnchor(value: String) extends AttrProvider("text-anchor", value)
+
+  object TextAnchor {
+    object None extends TextAnchor(null: String)
+    object Start extends TextAnchor("start")
+    object Middle extends TextAnchor("middle")
+    object End extends TextAnchor("end")
+  }
+
 }
 
 object Constants extends Constants

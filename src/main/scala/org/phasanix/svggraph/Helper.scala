@@ -7,50 +7,37 @@ import java.awt.geom.{Rectangle2D, Point2D}
  */
 object Helper {
 
+  private def pow10(x: Int): Int = {
+    x match {
+      case 1 => 10
+      case 2 => 100
+      case 3 => 1000
+      case 4 => 10000
+      case _ =>
+        var count = x
+        var p = 1
+        while (count > 0) {
+          p *= 10
+          count -= 1
+        }
+        p
+    }
+  }
+
   /**
    * Fast append double value to string buffer with fixed dp
    * Thread-safe alternative to java.text.NumberFormat
    */
   def append(sb: StringBuilder, value: Double, dp: Int): Unit = {
-    val insertAt = sb.length
 
-    val absV = if (value < 0) {
-      sb.append('-')
-      -value
-    } else value
-
-    var intV = absV.toInt
-
-    while (intV > 0) {
-      sb.insert(insertAt, ((intV % 10) + '0').toChar)
-      intV /= 10
-    }
+    val intV = value.toInt
+    sb.append(intV)
 
     if (dp > 0) {
-      val pow = dp match {
-        case 1 => 10
-        case 2 => 100
-        case 3 => 1000
-        case 4 => 10000
-        case _ =>
-          var count = dp
-          var p = 1
-          while (count > 0) {
-            p *= 10
-            count -= 1
-          }
-          p
-      }
-
-      var decV = ((absV % 1) * pow).toInt
       sb.append('.')
-      val insertDp = sb.length
-      var count = dp
-      while (count > 0) {
-        sb.insert(insertDp, ((decV % 10) + '0').toChar)
-        decV /= 10
-        count -= 1
-      }
+      val rem = Math.abs(value) - Math.abs(intV)
+      val remInt = (pow10(dp) * rem).toInt
+      sb.append(remInt)
     }
   }
 
@@ -64,17 +51,14 @@ object Helper {
 
     def fmt(value: Int): StringBuilder = {
       sb.append(value)
-      sb
     }
 
     def fmt(value: String): StringBuilder = {
       sb.append(value)
-      sb
     }
 
     def fmt(value: Char): StringBuilder = {
       sb.append(value)
-      sb
     }
 
     def fmt(point: Point2D.Float): StringBuilder = {
@@ -87,9 +71,22 @@ object Helper {
       sb.append(point._1)
         .append(',')
         .append(point._2)
-      sb
     }
 
+  }
+
+  def fmt(value: Double, dp: Int): String = {
+    val sb = new StringBuilder()
+    sb.fmt(value, dp)
+    sb.toString()
+  }
+
+  def fmt(value: Int): String = value.toString
+
+  def fmt(value: Point2D.Float): String = {
+    val sb = new StringBuilder()
+    sb.fmt(value)
+    sb.toString()
   }
 
   implicit class Rectangle2DOps(val rect: Rectangle2D.Float) extends AnyVal {

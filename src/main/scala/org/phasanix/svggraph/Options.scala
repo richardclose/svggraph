@@ -1,5 +1,6 @@
 package org.phasanix.svggraph
 
+import java.awt.Color
 import java.awt.geom.{Point2D, Rectangle2D}
 
 /**
@@ -9,7 +10,8 @@ import java.awt.geom.{Point2D, Rectangle2D}
  */
 case class Options (
   layout: Options.Layout,
-  font: Options.Font
+  font: Options.Font,
+  draw: Options.Draw
 )
 
 object Options {
@@ -17,7 +19,8 @@ object Options {
   /** Basic set of options */
   def basic: Options = Options (
     Layout.basic(chartWidth = 500, chartHeight = 300),
-    Font.basic()
+    Font.basic(),
+    Draw.basic()
   )
 
   /**
@@ -91,6 +94,15 @@ object Options {
     def basic(family: String = "Arial", baseSize: Float = 14f, sizeIncrement: Float = 1.5f): Font = {
       Font(family, baseSize, sizeIncrement)
     }
+  }
+
+  case class Draw (
+   strokeWidth: Float,
+   lineColor: Color
+  )
+
+  object Draw {
+    def basic(strokeWidth: Float = 1.0f, lineColor: Color = Color.BLACK): Draw = Draw(strokeWidth, lineColor)
   }
 
 }

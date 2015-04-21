@@ -4,7 +4,7 @@ import java.awt.geom.Point2D
 
 /**
  */
-class Chart {
+object Chart {
 
   import Helper._
 

@@ -11,6 +11,10 @@ class HelperTest extends FlatSpec with Matchers {
     val sb = new StringBuilder()
     sb.append("[").fmt(123.45, 3).append("]")
     sb.toString shouldEqual "[123.450]"
+
+    sb.clear()
+    sb.append('[').fmt(123.456789, 5)
+    sb.toString shouldEqual "[123.45678"
   }
 
   it should "be faster than NumberFormat" in {

@@ -1,6 +1,8 @@
 package org.phasanix.svggraph
 
 import java.awt.geom.{Rectangle2D, Point2D}
+import RichColor.color2richcolor
+
 
 /**
  * helper methods
@@ -92,5 +94,32 @@ object Helper {
   implicit class Rectangle2DOps(val rect: Rectangle2D.Float) extends AnyVal {
     def center: Point2D.Float = new Point2D.Float(rect.x + (rect.width / 2), rect.y + (rect.height / 2))
   }
+
+  /** Draw a text element */
+  def drawText(value: String, pos: Point2D.Float, attrs: Seq[Constants.AttrProvider] = Seq.empty)(implicit opts: Options): xml.Elem = {
+    attrs.foldLeft(<text x={fmt(pos.x, 1)} y={fmt(pos.y, 1)}>{value}</text>) { (elt, attr) => attr(elt) }
+  }
+
+  /**
+   * Draw grid on the chart area defined by opts, at the given positions
+   */
+  def drawGrid(vertical: Boolean, positions: Seq[Float])(implicit opts: Options) = {
+    val area = opts.plotArea
+
+    if (vertical) {
+      val x1 = fmt(area.x, 1)
+      val x2 = fmt(area.x + area.width, 1)
+      positions.map { pos =>
+          <line x1={x1} x2={x2} y1={fmt(pos, 1)} y2={fmt(pos, 1)} stroke={opts.draw.gridColor.asRgb}/>
+      }
+    } else {
+      val y1 = fmt(area.y, 1)
+      val y2 = fmt(area.height - area.y, 1)
+      positions.map { pos =>
+          <line x1={fmt(pos, 1)} x2={fmt(pos, 1)} y1={y1} y2={y2} stroke={opts.draw.gridColor.asRgb}/>
+      }
+    }
+  }
+
 
 }

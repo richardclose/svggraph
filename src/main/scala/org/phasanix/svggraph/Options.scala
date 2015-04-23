@@ -2,6 +2,7 @@ package org.phasanix.svggraph
 
 import java.awt.Color
 import java.awt.geom.{Point2D, Rectangle2D}
+import RichColor.color2richcolor
 
 /**
  * Configuration options.
@@ -102,8 +103,10 @@ object Options {
   case class Draw (
    strokeWidth: Float,
    lineSpacing: Float,
+   pixelsPerTick: Int,
    lineColor: Color,
-   frameColor: Color
+   frameColor: Color,
+   gridColor: Color
   )
 
   object Draw {
@@ -111,9 +114,11 @@ object Options {
     def basic (
       strokeWidth: Float = 1.0f,
       lineSpacing: Float = 12.0f,
+      pixelsPerTick: Int = 50,
       lineColor: Color = Color.BLACK,
-      frameColor: Option[Color] = None): Draw =
-      Draw(strokeWidth, lineSpacing, lineColor, frameColor.getOrElse(lineColor))
+      frameColor: Color = RichColor.Nil,
+      gridColor: Color = RichColor.Nil): Draw =
+      Draw(strokeWidth, lineSpacing, pixelsPerTick, lineColor, frameColor.or(lineColor), gridColor.or(lineColor))
   }
 
 }

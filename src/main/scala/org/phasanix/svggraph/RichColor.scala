@@ -14,14 +14,20 @@ class RichColorOps(val value: Color) extends AnyVal {
   def opaque: Color = if (value.getAlpha == 255) value else setAlpha(1.0)
 
   def asRgb: String = RichColor.colorAsRgb(value)
+
   def asHex: String = RichColor.colorAsHex(value)
+
+  def or(color: Color): Color =
+    if (value == RichColor.Nil) color else value
 }
 
 object RichColor extends X11Colors {
 
   implicit def color2richcolor(color: Color): RichColorOps = apply(color)
 
-  val Transparent = new Color(0, 0, 0, 0)
+  val Transparent: Color = new Color(0, 0, 0, 0)
+
+  val Nil: Color = new Color(12, 34, 56, 0)
 
   def apply(color: Color): RichColorOps = new RichColorOps(color)
 

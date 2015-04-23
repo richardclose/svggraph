@@ -12,7 +12,10 @@ case class Options (
   layout: Options.Layout,
   font: Options.Font,
   draw: Options.Draw
-)
+) {
+  def plotArea: Rectangle2D.Float = layout.plotArea
+  def strokeWidth: Float = draw.strokeWidth
+}
 
 object Options {
 
@@ -98,11 +101,19 @@ object Options {
 
   case class Draw (
    strokeWidth: Float,
-   lineColor: Color
+   lineSpacing: Float,
+   lineColor: Color,
+   frameColor: Color
   )
 
   object Draw {
-    def basic(strokeWidth: Float = 1.0f, lineColor: Color = Color.BLACK): Draw = Draw(strokeWidth, lineColor)
+
+    def basic (
+      strokeWidth: Float = 1.0f,
+      lineSpacing: Float = 12.0f,
+      lineColor: Color = Color.BLACK,
+      frameColor: Option[Color] = None): Draw =
+      Draw(strokeWidth, lineSpacing, lineColor, frameColor.getOrElse(lineColor))
   }
 
 }

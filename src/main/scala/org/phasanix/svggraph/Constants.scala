@@ -9,7 +9,7 @@ trait Constants {
   trait Named {
     override def toString: String = this.getClass.getSimpleName.replace("$", "")
   }
-  
+
   /**
    * Fill styles
    */
@@ -40,15 +40,23 @@ trait Constants {
   }
 
   /**
-   * Text anchor, for alignment
+   * Text anchor, for horizontal alignment
    */
-  sealed class TextAnchor(value: String) extends AttrProvider("text-anchor", value)
+  class TextAnchor(value: String) extends AttrProvider("text-anchor", value)
 
   object TextAnchor {
-    object None extends TextAnchor(null: String)
-    object Start extends TextAnchor("start")
-    object Middle extends TextAnchor("middle")
-    object End extends TextAnchor("end")
+    val Nil = new TextAnchor(null: String)
+    val Start = new TextAnchor("start")
+    val Middle = new TextAnchor("middle")
+    val End = new TextAnchor("end")
+  }
+
+
+  sealed class BaselineAlignment(value: String) extends AttrProvider("alignment-baseline", value)
+
+  object BaselineAlignment {
+    val Nil = new BaselineAlignment(null: String)
+    val Middle = new BaselineAlignment("middle")
   }
 
 }

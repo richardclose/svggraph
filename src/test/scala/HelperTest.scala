@@ -60,7 +60,7 @@ class HelperTest extends FlatSpec with Matchers {
 
     val t2 = (System.nanoTime().toDouble - start)/count
 
-    println(s"call to Helper.append(): $t1 ns call to NumberFormat.format(): $t2")
+    // println(s"call to Helper.append(): $t1 ns call to NumberFormat.format(): $t2")
 
     (t2 - t1 > 0) shouldBe true
   }

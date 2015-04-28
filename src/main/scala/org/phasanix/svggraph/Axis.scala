@@ -81,6 +81,13 @@ object Axis {
 
   /**
    * Axis for which datapoints are positioned according to their value (e.g. x/y scatterplot)
+   * @param opts Options
+   * @param title Title of axis
+   * @param isVertical true if y axis, else false
+   * @param isRight true if right-hand y axis, else false
+   * @param isDate do values represent dates? (XXX: necessary?)
+   * @param isIntegral constrain tick intervals to be multiples of 1
+   * @param tickFmt tick formatter
    */
   class ScaleAxis (
     opts: Options,
@@ -182,8 +189,10 @@ object Axis {
 
     /**
      * Generate appropriately sized tick intervals
+     *
+     * @param rawCount approximate number of ticks required.
      */
-    private def numericTickIntervals(rawCount: Int, integral: Boolean) = new Iterator[Double] {
+    private def numericTickIntervals(rawCount: Int, isIntegral: Boolean) = new Iterator[Double] {
       import java.lang.Math.{ pow, log10 }
 
       // Interval, such that about rawCount intervals will fit into 
@@ -197,7 +206,7 @@ object Axis {
           .fold(50.0)(_._1)
         // println("rawSize=" + rawSize + " scale=" + scale + " s2=" + s2 + " m=" + m)
         val x = m * scale
-        if (integral && x < 1.0) 1.0 else x
+        if (isIntegral && x < 1.0) 1.0 else x
       }
 
       private[this] var nextValue = {
@@ -215,6 +224,7 @@ object Axis {
 
     /**
      * Tick interval generator for date values (i.e. Date.getTime() -> Long: Double)
+     * @param rawCount approximate number of ticks required.
      */
     def dateTickIntervals(rawCount: Int) = new Iterator[Double] {
 
@@ -306,6 +316,31 @@ object Axis {
       .toSeq
   }
 
+  /**
+   * Translate given values to chart coordinates
+   */
+  def locate(xAxis: ScaleAxis, yAxis: ScaleAxis, xValue: Float, yValue: Float): Point2D.Float = {
+    val xPos = xAxis.mapValue(xValue)
+    val yPos = yAxis.mapValue(yValue)
+    new Point2D.Float(xAxis.minPos + xPos, yAxis.minPos - yPos)
+  }
+
+  def xAxis(title: String, minValue: Double, maxValue: Double, isDate: Boolean, fmtOpt: Option[Tick.Fmt])(implicit opts: Options): ScaleAxis =
+    makeAxis(opts, title, isVertical = false, isRight = false, minValue, maxValue, isDate = isDate, isIntegral = true, fmtOpt)
+
+  private def makeAxis(
+    opts: Options,
+    title: String,
+    isVertical: Boolean,
+    isRight: Boolean,
+    minValue: Double,
+    maxValue: Double,
+    isDate: Boolean,
+    isIntegral: Boolean,
+    fmtOpt: Option[Tick.Fmt]) = {
+    val fmt = fmtOpt.getOrElse(Tick.defaultFmt(isDate))
+    new ScaleAxis(opts, title, isVertical, isRight, minValue, maxValue, isDate, isIntegral, fmt)
+  }
 
 
 }
